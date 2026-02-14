@@ -1,11 +1,13 @@
-﻿using Deal.DeskOne.Application.Abstractions.Mediator;
+﻿using Deal.DeskOne.Application.Abstractions;
+using Deal.DeskOne.Application.Abstractions.Mediator;
 using Deal.DeskOne.Application.Commands.Request.CreateRequest;
-using Deal.DeskOne.Application.Services.Mediator;
 using Deal.DeskOne.Domain.Abstractions;
 using Deal.DeskOne.Domain.Abstractions.Repositories;
 using Deal.DeskOne.Infrastructure.Data;
 using Deal.DeskOne.Infrastructure.Persistence;
 using Deal.DeskOne.Infrastructure.Persistence.Repositories;
+using Deal.DeskOne.Infrastructure.Queries;
+using Deal.DeskOne.Infrastructure.Services.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,11 +23,15 @@ namespace Deal.DeskOne.Infrastructure.DependencyInjection
                 opt.UseNpgsql(configuration.GetConnectionString("Postgres"));
             });
 
+            services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+
             services.AddScoped<ICommandDispatcher, CommandDispatcher>();
             services.AddScoped<IQueryDispatcher, QueryDispatcher>();
 
             services.Scan(scan => scan
-                .FromAssemblies(typeof(CreateRequestCommandHandler).Assembly)
+                .FromAssemblies(
+                    typeof(CreateRequestCommandHandler).Assembly,
+                    typeof(GetRequestsQueryHandler).Assembly)
                 .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()

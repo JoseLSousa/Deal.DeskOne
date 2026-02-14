@@ -2,10 +2,9 @@
 {
     public interface ICommandDispatcher
     {
-        Task DispatchAsync<TCommand>(TCommand command, CancellationToken cancellationToken = default)
-            where TCommand : ICommand;
+        Task DispatchAsync(ICommand command, CancellationToken cancellationToken = default);
 
-        Task<TResult> DispatchAsync<TCommand, TResult>(TCommand command, CancellationToken cancellationToken = default)
-            where TCommand : ICommand<TResult>;
+        Task<TResult> DispatchAsync<TResult>(ICommand<TResult> command, CancellationToken cancellationToken = default);
     }
+
 }

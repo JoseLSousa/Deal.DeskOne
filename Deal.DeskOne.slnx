@@ -1,8 +1,15 @@
 <Solution>
+  <Folder Name="/Itens de Solução/">
+    <File Path="docker-compose.yml" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="Deal.DeskOne.API/Deal.DeskOne.API.csproj" />
     <Project Path="Deal.DeskOne.Application/Deal.DeskOne.Application.csproj" />
     <Project Path="Deal.DeskOne.Domain/Deal.DeskOne.Domain.csproj" />
     <Project Path="Deal.DeskOne.Infrastructure/Deal.DeskOne.Infrastructure.csproj" />
+    <Project Path="DeskOne.Frontend/Deal.DeskOne.Frontend.esproj">
+      <Build />
+      <Deploy />
+    </Project>
   </Folder>
 </Solution>

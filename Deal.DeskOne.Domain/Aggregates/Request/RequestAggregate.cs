@@ -10,7 +10,7 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
         public string Description { get; private set; }
         public RequestCategory Category { get; private set; }
         public RequestPriority Priority { get; private set; }
-        private RequestStatus Status { get; set; }
+        public RequestStatus Status { get; private set; }
         public Guid CreatedBy { get; private set; }
         public Guid? ApprovedBy { get; private set; }
         public Guid? RejectedBy { get; private set; }
