@@ -6,7 +6,7 @@ namespace Deal.DeskOne.Infrastructure.Data
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
 
-        public DbSet<Request> Requests { get; set; }
+        public DbSet<RequestAggregate> Requests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -4,28 +4,28 @@ using Deal.DeskOne.Domain.Common;
 
 namespace Deal.DeskOne.Domain.Aggregates.Request
 {
-    public sealed class Request : AggregateRoot
+    public sealed class RequestAggregate : AggregateRoot
     {
         public string Title { get; private set; }
         public string Description { get; private set; }
         public RequestCategory Category { get; private set; }
-        public Priority Priority { get; private set; }
+        public RequestPriority Priority { get; private set; }
         private RequestStatus Status { get; set; }
         public Guid CreatedBy { get; private set; }
         public Guid? ApprovedBy { get; private set; }
         public Guid? RejectedBy { get; private set; }
         public string? RejectionReason { get; private set; }
 
-        private Request() { }
+        private RequestAggregate() { }
 
-        public static Request Create(
+        public static RequestAggregate Create(
             string title,
             string description,
             RequestCategory category,
-            Priority priority,
+            RequestPriority priority,
             Guid createdBy)
         {
-            var request = new Request
+            var request = new RequestAggregate
             {
                 Title = title,
                 Description = description,
@@ -68,7 +68,7 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
             AddDomainEvent(new RequestRejectedEvent(Id, rejectedBy, reason));
         }
 
-        public void UpdatePriority(Priority newPriority)
+        public void UpdatePriority(RequestPriority newPriority)
         {
             if (Status != RequestStatus.Pending)
                 throw new InvalidOperationException("Cannot update priority of approved or rejected requests.");
