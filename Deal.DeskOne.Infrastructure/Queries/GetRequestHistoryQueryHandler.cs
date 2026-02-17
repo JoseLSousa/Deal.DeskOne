@@ -1,7 +1,7 @@
+using Dapper;
 using Deal.DeskOne.Application.Abstractions;
 using Deal.DeskOne.Application.Abstractions.Mediator;
 using Deal.DeskOne.Application.Queries.Request.GetRequestHistory;
-using Dapper;
 
 namespace Deal.DeskOne.Infrastructure.Queries
 {
@@ -14,18 +14,20 @@ namespace Deal.DeskOne.Infrastructure.Queries
         {
             using var connection = dbConnectionFactory.CreateConnection();
 
-            const string sql = @"
-                SELECT 
-                    id as Id,
-                    request_id as RequestId,
-                    from_status as FromStatus,
-                    to_status as ToStatus,
-                    changed_by as ChangedBy,
-                    changed_at as ChangedAt,
-                    comment as Comment
-                FROM ""RequestStatusHistories""
-                WHERE request_id = @RequestId
-                ORDER BY changed_at DESC";
+            const string sql = """
+
+                                               SELECT 
+                                                   "Id",
+                                                   "RequestId",
+                                                   "FromStatus",
+                                                   "ToStatus",
+                                                   "ChangedBy",
+                                                   "ChangedAt",
+                                                   "Comment"
+                                               FROM "RequestStatusHistories"
+                                               WHERE "RequestId" = @RequestId
+                                               ORDER BY "ChangedAt" DESC
+                               """;
 
             var histories = await connection.QueryAsync<RequestHistoryDto>(
                 sql,
