@@ -2,5 +2,8 @@
 
 namespace Deal.DeskOne.Application.Queries.Request.GetRequests
 {
-    public record GetRequestsQuery : IQuery<IEnumerable<RequestResponseDto>>;
+    public record GetRequestsQuery(
+        string? Status = null,
+        string? Search = null)
+        : IQuery<IEnumerable<RequestResponseDto>>;
 }

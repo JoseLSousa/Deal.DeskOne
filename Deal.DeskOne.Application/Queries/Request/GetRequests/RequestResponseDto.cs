@@ -3,6 +3,15 @@
     public record RequestResponseDto(
         Guid Id,
         string Title,
-        DateTime CreatedAt
+        string Description,
+        int Category,
+        int Priority,
+        int Status,
+        DateTime CreatedAt,
+        Guid CreatedBy,
+        Guid? ApprovedBy,
+        Guid? RejectedBy,
+        string? RejectionReason,
+        Guid? DeletedBy
     );
 }

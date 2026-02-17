@@ -12,12 +12,22 @@ namespace Deal.DeskOne.Infrastructure.Queries
             using var connection = connectionFactory.CreateConnection();
 
             const string sql = """
-                               SELECT "Id", "Title", "CreatedAt"
+                               SELECT "Id", "Title","Description", "Category","Priority", "Status",
+                                      "CreatedAt", "CreatedBy", "ApprovedBy", "RejectedBy", "RejectionReason", "DeletedBy"
                                FROM "Requests"
+                               WHERE "IsDeleted" = false
+                                     AND (@Status IS NULL OR "Status" = @Status::integer)
+                                     AND (@Search IS NULL OR "Title" ILIKE @Search OR "Description" ILIKE @Search)
                                ORDER BY "CreatedAt" DESC
                                """;
 
-            return await connection.QueryAsync<RequestResponseDto>(sql);
+            var parameters = new
+            {
+                Status = query.Status,
+                Search = string.IsNullOrEmpty(query.Search) ? null : $"%{query.Search}%"
+            };
+
+            return await connection.QueryAsync<RequestResponseDto>(sql, parameters);
         }
     }
 }
