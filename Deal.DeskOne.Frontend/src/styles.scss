@@ -1,0 +1,84 @@
+@use '@angular/material' as mat;
+
+@import url('https://fonts.googleapis.com/css2?family=Bitter:wght@400;600&display=swap');
+
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (
+      primary: mat.$green-palette,
+      tertiary: mat.$green-palette,
+      theme-type: light,
+    ),
+    typography: 'Bitter',
+    density: 0,
+  ));
+}
+
+body {
+
+  color-scheme: light;
+
+  background-color: var(--app-surface, var(--mat-sys-surface));
+  color: var(--app-on-surface, var(--mat-sys-on-surface));
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+
+:root {
+  color-scheme: light;
+  --app-surface: #f3f8f4;
+  --app-on-surface: #1b3126;
+  --sage-100: #eef6f1;
+  --sage-200: #e3f0e7;
+  --sage-300: #c8e2d3;
+  --sage-500: #5f9e7f;
+  --sage-600: #3f7d60;
+  --sage-700: #2c5f49;
+  --sage-900: #1b3126;
+  --mint-100: #f3fbf6;
+  --mint-200: #dff3e7;
+  --mint-300: #c3e8d6;
+  --mint-500: #5db58a;
+  --mint-700: #2f7d5b;
+  --ink-500: rgba(27, 49, 38, 0.7);
+}
+
+html.theme-dark {
+  @include mat.theme((
+    color: (
+      primary: mat.$green-palette,
+      tertiary: mat.$green-palette,
+      theme-type: dark,
+    ),
+    typography: 'Bitter',
+    density: 0,
+  ));
+  color-scheme: dark;
+  --app-surface: #0f1a15;
+  --app-on-surface: #e3efe8;
+  --sage-100: #15231c;
+  --sage-200: #1c2f26;
+  --sage-300: #234033;
+  --sage-500: #4b8a6b;
+  --sage-600: #5ea483;
+  --sage-700: #6fb996;
+  --sage-900: #e3efe8;
+  --mint-100: #13221b;
+  --mint-200: #1b3328;
+  --mint-300: #224036;
+  --mint-500: #3b7f62;
+  --mint-700: #58b38b;
+  --ink-500: rgba(227, 239, 232, 0.72);
+}
+
+html.theme-dark body {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}

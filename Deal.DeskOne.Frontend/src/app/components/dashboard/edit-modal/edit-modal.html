@@ -1,0 +1,114 @@
+<div class="modal-overlay" (click)="onBackdropClick()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Editar Solicitação</h2>
+      <button
+        class="close-btn"
+        (click)="onCancel()"
+        aria-label="Fechar modal"
+        [disabled]="isLoading()"
+      >
+        ×
+      </button>
+    </div>
+
+    @if (request(); as req) {
+      @if (req.status !== 0) {
+        <div class="modal-body">
+          <div class="alert">
+            <p>
+              Esta solicitação não pode ser editada pois seu status é
+              <strong>{{ getStatusLabel(req.status) }}</strong
+              >. Apenas solicitações em status <strong>Pendente</strong> podem
+              ser editadas.
+            </p>
+          </div>
+        </div>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="onConfirm()">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="title">Título*</label>
+              <input
+                id="title"
+                type="text"
+                formControlName="title"
+                placeholder="Digite um título"
+                required
+              />
+              @if (titleControl?.invalid && titleControl?.touched) {
+                <span class="error">O título é obrigatório (mínimo 3 caracteres)</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="description">Descrição*</label>
+              <textarea
+                id="description"
+                formControlName="description"
+                placeholder="Descreva a solicitação..."
+                rows="4"
+                required
+              ></textarea>
+              @if (descriptionControl?.invalid && descriptionControl?.touched) {
+                <span class="error">A descrição é obrigatória (mínimo 10 caracteres)</span>
+              }
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="category">Categoria*</label>
+                <select id="category" formControlName="category" required>
+                  <option value="" disabled selected>Selecione uma categoria</option>
+                  @for (cat of categories; track cat.value) {
+                    <option [value]="cat.value">{{ cat.label }}</option>
+                  }
+                </select>
+                @if (categoryControl?.invalid && categoryControl?.touched) {
+                  <span class="error">A categoria é obrigatória</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="priority">Prioridade*</label>
+                <select id="priority" formControlName="priority" required>
+                  <option value="" disabled selected>Selecione uma prioridade</option>
+                  @for (pri of priorities; track pri.value) {
+                    <option [value]="pri.value">{{ pri.label }}</option>
+                  }
+                </select>
+                @if (priorityControl?.invalid && priorityControl?.touched) {
+                  <span class="error">A prioridade é obrigatória</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn-cancel"
+              (click)="onCancel()"
+              [disabled]="isLoading()"
+            >
+              Cancelar
+            </button>
+            @if (req.status === 0) {
+              <button
+                type="submit"
+                class="btn-submit"
+                [disabled]="form.invalid || isLoading()"
+              >
+                @if (isLoading()) {
+                  <span>Salvando...</span>
+                } @else {
+                  <span>Salvar Alterações</span>
+                }
+              </button>
+            }
+          </div>
+        </form>
+      }
+    }
+  </div>
+</div>

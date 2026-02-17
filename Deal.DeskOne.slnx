@@ -7,9 +7,5 @@
     <Project Path="Deal.DeskOne.Application/Deal.DeskOne.Application.csproj" />
     <Project Path="Deal.DeskOne.Domain/Deal.DeskOne.Domain.csproj" />
     <Project Path="Deal.DeskOne.Infrastructure/Deal.DeskOne.Infrastructure.csproj" />
-    <Project Path="DeskOne.Frontend/Deal.DeskOne.Frontend.esproj">
-      <Build />
-      <Deploy />
-    </Project>
   </Folder>
 </Solution>

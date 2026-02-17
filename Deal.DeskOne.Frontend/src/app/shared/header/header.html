@@ -1,0 +1,33 @@
+<header class="header">
+  <div class="header__container">
+    <div class="header__logo">
+      <h1 class="logo">DeskOne</h1>
+    </div>
+
+    @if (isAuthenticated()) {
+      <div class="header__user">
+        <button
+          type="button"
+          [matMenuTriggerFor]="userMenu"
+          class="user-button"
+          [attr.aria-label]="'Menu do usuário: ' + userName()"
+        >
+          <div class="user-avatar">{{ userInitials() }}</div>
+          <span class="user-name">{{ userName() }}</span>
+          <mat-icon>expand_more</mat-icon>
+        </button>
+
+        <mat-menu #userMenu="matMenu" class="user-menu">
+          <button
+            mat-menu-item
+            (click)="logout()"
+            class="logout-button"
+          >
+            <mat-icon>logout</mat-icon>
+            <span>Sair</span>
+          </button>
+        </mat-menu>
+      </div>
+    }
+  </div>
+</header>
