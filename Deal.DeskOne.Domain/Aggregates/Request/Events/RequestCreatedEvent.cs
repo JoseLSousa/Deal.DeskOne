@@ -1,4 +1,4 @@
-using Deal.DeskOne.Domain.Aggregates.Requests;
+using Deal.DeskOne.Domain.Aggregates.Request;
 using Deal.DeskOne.Domain.Common;
 
 namespace Deal.DeskOne.Domain.Aggregates.Requests.Events

@@ -1,4 +1,3 @@
-using Deal.DeskOne.Domain.Aggregates.Requests;
 using Deal.DeskOne.Domain.Aggregates.Requests.Events;
 using Deal.DeskOne.Domain.Common;
 
@@ -15,6 +14,9 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
         public Guid? ApprovedBy { get; private set; }
         public Guid? RejectedBy { get; private set; }
         public string? RejectionReason { get; private set; }
+        public bool IsDeleted { get; private set; }
+        public DateTime? DeletedAt { get; private set; }
+        public Guid? DeletedBy { get; private set; }
 
         private RequestAggregate() { }
 
@@ -38,6 +40,39 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
             request.AddDomainEvent(new RequestCreatedEvent(request.Id, title, category, createdBy));
 
             return request;
+        }
+
+        public void UpdateTitle(string newTitle)
+        {
+            if (Status != RequestStatus.Pending)
+                throw new InvalidOperationException("Cannot update title of approved or rejected requests.");
+
+            if (string.IsNullOrWhiteSpace(newTitle))
+                throw new ArgumentException("Title cannot be empty.", nameof(newTitle));
+
+            Title = newTitle;
+            MarkAsUpdated();
+        }
+
+        public void UpdateDescription(string newDescription)
+        {
+            if (Status != RequestStatus.Pending)
+                throw new InvalidOperationException("Cannot update description of approved or rejected requests.");
+
+            if (string.IsNullOrWhiteSpace(newDescription))
+                throw new ArgumentException("Description cannot be empty.", nameof(newDescription));
+
+            Description = newDescription;
+            MarkAsUpdated();
+        }
+
+        public void UpdateCategory(RequestCategory newCategory)
+        {
+            if (Status != RequestStatus.Pending)
+                throw new InvalidOperationException("Cannot update category of approved or rejected requests.");
+
+            Category = newCategory;
+            MarkAsUpdated();
         }
 
         public void Approve(Guid approvedBy)
@@ -74,6 +109,17 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
                 throw new InvalidOperationException("Cannot update priority of approved or rejected requests.");
 
             Priority = newPriority;
+            MarkAsUpdated();
+        }
+
+        public void SoftDelete(Guid deletedBy)
+        {
+            if (IsDeleted)
+                return;
+
+            IsDeleted = true;
+            DeletedAt = DateTime.UtcNow;
+            DeletedBy = deletedBy;
             MarkAsUpdated();
         }
     }
