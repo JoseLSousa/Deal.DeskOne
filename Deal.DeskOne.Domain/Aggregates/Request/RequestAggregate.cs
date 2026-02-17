@@ -17,6 +17,7 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
         public bool IsDeleted { get; private set; }
         public DateTime? DeletedAt { get; private set; }
         public Guid? DeletedBy { get; private set; }
+        public ICollection<RequestStatusHistory> StatusHistory { get; private set; } = new List<RequestStatusHistory>();
 
         private RequestAggregate() { }
 
@@ -75,13 +76,16 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
             MarkAsUpdated();
         }
 
-        public void Approve(Guid approvedBy)
+        public void Approve(Guid approvedBy, string? comment = null)
         {
             if (Status != RequestStatus.Pending)
                 throw new InvalidOperationException("Only pending requests can be approved.");
 
+            var previousStatus = Status;
             Status = RequestStatus.Approved;
             ApprovedBy = approvedBy;
+
+            RecordStatusHistory(previousStatus, Status, approvedBy, comment);
 
             MarkAsUpdated();
             AddDomainEvent(new RequestApprovedEvent(Id, approvedBy));
@@ -95,9 +99,12 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
             if (string.IsNullOrWhiteSpace(reason))
                 throw new ArgumentException("Rejection reason is required.", nameof(reason));
 
+            var previousStatus = Status;
             Status = RequestStatus.Rejected;
             RejectedBy = rejectedBy;
             RejectionReason = reason;
+
+            RecordStatusHistory(previousStatus, Status, rejectedBy, reason);
 
             MarkAsUpdated();
             AddDomainEvent(new RequestRejectedEvent(Id, rejectedBy, reason));
@@ -121,6 +128,12 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
             DeletedAt = DateTime.UtcNow;
             DeletedBy = deletedBy;
             MarkAsUpdated();
+        }
+
+        private void RecordStatusHistory(RequestStatus fromStatus, RequestStatus toStatus, Guid changedBy, string? comment)
+        {
+            var history = RequestStatusHistory.Create(Id, fromStatus, toStatus, changedBy, comment);
+            StatusHistory.Add(history);
         }
     }
 }
