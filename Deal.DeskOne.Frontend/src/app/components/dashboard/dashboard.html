@@ -164,6 +164,7 @@
                                     @if (element.status === 0) {
                                         <button mat-menu-item type="button" (click)="editRequest(element)">Editar</button>
                                     }
+                                    <button mat-menu-item type="button" (click)="selectRequest(element)">Ver Histórico</button>
                                     @if (isManager()) {
                                         <button mat-menu-item type="button" (click)="deleteRequest(element)" class="delete-option">Deletar</button>
                                     }
@@ -183,5 +184,25 @@
             (close)="closeModal()"
             (requestCreated)="onRequestCreated()"
         ></app-request-modal>
+    }
+
+    @if (selectedRequestId(); as requestId) {
+        <div class="modal-overlay" (click)="closeRequestDetails()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Histórico da Solicitação</h2>
+                    <button 
+                        class="close-btn" 
+                        (click)="closeRequestDetails()"
+                        aria-label="Fechar histórico"
+                    >
+                        ×
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <app-request-history [requestId]="requestId"></app-request-history>
+                </div>
+            </div>
+        </div>
     }
 </section>

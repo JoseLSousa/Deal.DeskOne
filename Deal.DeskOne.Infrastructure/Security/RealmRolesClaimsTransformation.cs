@@ -24,7 +24,7 @@ namespace Deal.DeskOne.Infrastructure.Security
 
             foreach (var roleName in roles.EnumerateArray().Select(role => role.GetString()).Where(roleName => !string.IsNullOrWhiteSpace(roleName)))
             {
-                identity.AddClaim(new Claim(ClaimTypes.Role, roleName));
+                identity.AddClaim(new Claim(ClaimTypes.Role, roleName!));
             }
 
             return Task.FromResult(principal);

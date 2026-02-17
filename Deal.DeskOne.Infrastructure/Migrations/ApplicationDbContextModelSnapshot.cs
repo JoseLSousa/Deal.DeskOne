@@ -85,11 +85,11 @@ namespace Deal.DeskOne.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ChangedBy")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("ChangedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ChangedBy")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Comment")
                         .HasColumnType("text");
@@ -112,7 +112,7 @@ namespace Deal.DeskOne.Infrastructure.Migrations
 
             modelBuilder.Entity("Deal.DeskOne.Domain.Aggregates.Request.RequestStatusHistory", b =>
                 {
-                    b.HasOne("Deal.DeskOne.Domain.Aggregates.Request.RequestAggregate")
+                    b.HasOne("Deal.DeskOne.Domain.Aggregates.Request.RequestAggregate", null)
                         .WithMany("StatusHistory")
                         .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -15,6 +15,7 @@ import { RequestsService } from './requests.service';
 import { RequestModal } from './request-modal/request-modal';
 import { RejectModal } from './reject-modal/reject-modal';
 import { EditModal } from './edit-modal/edit-modal';
+import { RequestHistoryComponent } from './request-history/request-history';
 import { KeycloakService } from '../../auth/keycloak.service';
 
 interface RequestView extends Request {
@@ -35,6 +36,7 @@ interface RequestView extends Request {
     MatTableModule,
     CommonModule,
     RequestModal,
+    RequestHistoryComponent,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -63,6 +65,7 @@ export class Dashboard implements OnInit {
   readonly priorityFilter = signal<number | null>(null);
   readonly statusFilter = signal<number | null>(null);
   readonly showModal = signal(false);
+  readonly selectedRequestId = signal<string | null>(null);
 
   readonly isManager = computed(() => this.keycloakService.hasRole('Manager'));
   readonly isUser = computed(() => this.keycloakService.hasRole('User'));
@@ -177,6 +180,14 @@ export class Dashboard implements OnInit {
 
   onRequestCreated(): void {
     this.loadRequests();
+  }
+
+  selectRequest(request: Request): void {
+    this.selectedRequestId.set(request.id);
+  }
+
+  closeRequestDetails(): void {
+    this.selectedRequestId.set(null);
   }
 
   approveRequest(request: Request): void {
