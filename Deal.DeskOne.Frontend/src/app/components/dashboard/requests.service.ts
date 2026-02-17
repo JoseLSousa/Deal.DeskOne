@@ -9,6 +9,7 @@ import {
   ApproveRequestCommand,
   RejectRequestCommand
 } from './request.model';
+import { RequestHistory } from './request-history.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -38,6 +39,14 @@ export class RequestsService {
    */
   getRequestById(id: string): Observable<Request> {
     return this.http.get<Request>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Obter histórico de mudanças de uma solicitação
+   * GET /api/requests/{id}/history
+   */
+  getRequestHistory(id: string): Observable<RequestHistory[]> {
+    return this.http.get<RequestHistory[]>(`${this.apiUrl}/${id}/history`);
   }
 
   /**
