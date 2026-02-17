@@ -8,6 +8,7 @@ using Deal.DeskOne.Application.Commands.Request.RejectRequest;
 using Deal.DeskOne.Application.Commands.Request.UpdateRequest;
 using Deal.DeskOne.Application.Queries.Request.GetRequestById;
 using Deal.DeskOne.Application.Queries.Request.GetRequests;
+using Deal.DeskOne.Application.Queries.Request.GetRequestHistory;
 using Deal.DeskOne.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -61,6 +62,18 @@ namespace Deal.DeskOne.API.Controllers
 
             if (result is null)
                 return NotFound();
+
+            return Ok(result);
+        }
+
+        [Authorize(Policy = AuthorizationPolicies.RequestReadCreate)]
+        [HttpGet("{id:guid}/history")]
+        [ProducesResponseType(typeof(IEnumerable<RequestHistoryDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetRequestHistory(Guid id, CancellationToken cancellationToken)
+        {
+            var query = new GetRequestHistoryQuery(id);
+
+            var result = await queryDispatcher.DispatchAsync(query, cancellationToken);
 
             return Ok(result);
         }
