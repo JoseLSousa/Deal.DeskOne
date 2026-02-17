@@ -12,6 +12,13 @@ namespace Deal.DeskOne.Infrastructure.Data
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
+            modelBuilder.Entity<RequestAggregate>()
+                .HasQueryFilter(r => !r.IsDeleted);
+
+            modelBuilder.Entity<RequestAggregate>()
+                .Property(r => r.IsDeleted)
+                .HasDefaultValue(false);
+
             base.OnModelCreating(modelBuilder);
         }
     }
