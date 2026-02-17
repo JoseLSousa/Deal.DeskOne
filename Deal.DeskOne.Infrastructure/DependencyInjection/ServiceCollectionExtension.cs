@@ -7,7 +7,10 @@ using Deal.DeskOne.Infrastructure.Data;
 using Deal.DeskOne.Infrastructure.Persistence;
 using Deal.DeskOne.Infrastructure.Persistence.Repositories;
 using Deal.DeskOne.Infrastructure.Queries;
+using Deal.DeskOne.Infrastructure.Security;
 using Deal.DeskOne.Infrastructure.Services.Mediator;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,9 +38,32 @@ namespace Deal.DeskOne.Infrastructure.DependencyInjection
                 .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
+                .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
                 .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Authority = configuration["Authentication:Authority"];
+                    options.Audience = configuration["Authentication:Audience"];
+                    options.RequireHttpsMetadata = false;
+                });
+
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(AuthorizationPolicies.RequestReadCreate,
+                    policy => policy.RequireRole("User", "Manager"));
+
+                options.AddPolicy(AuthorizationPolicies.RequestApproveReject,
+                    policy => policy.RequireRole("Manager"));
+            });
+
+            services.AddTransient<IClaimsTransformation, RealmRolesClaimsTransformation>();
 
 
             services.AddScoped<IRequestRepository, RequestRepository>();
