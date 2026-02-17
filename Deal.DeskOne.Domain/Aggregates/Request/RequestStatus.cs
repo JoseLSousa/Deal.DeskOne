@@ -1,4 +1,4 @@
-namespace Deal.DeskOne.Domain.Aggregates.Requests
+namespace Deal.DeskOne.Domain.Aggregates.Request
 {
     public enum RequestStatus
     {
