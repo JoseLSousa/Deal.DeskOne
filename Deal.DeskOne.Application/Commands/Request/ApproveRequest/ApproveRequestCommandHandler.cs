@@ -15,7 +15,10 @@ namespace Deal.DeskOne.Application.Commands.Request.ApproveRequest
 
             request.Approve(command.ApprovedBy);
 
-            requestRepository.Update(request);
+            foreach (var history in request.History)
+            {
+                requestRepository.AddHistory(history);
+            }
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
