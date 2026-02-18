@@ -1,0 +1,102 @@
+<div class="modal-overlay" (click)="onBackdropClick()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Nova Solicitação</h2>
+      <button
+        class="close-btn"
+        (click)="close.emit()"
+        aria-label="Fechar modal"
+      >
+        ×
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="title">Título</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          placeholder="Digite um título"
+          required
+        />
+        @if (form.get('title')?.invalid && form.get('title')?.touched) {
+          <span class="error">Título é obrigatório</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Descrição</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          placeholder="Digite uma descrição"
+          rows="4"
+          required
+        ></textarea>
+        @if (
+          form.get('description')?.invalid && form.get('description')?.touched
+        ) {
+          <span class="error">Descrição é obrigatória</span>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="category">Categoria</label>
+          <select id="category" formControlName="category" required>
+            <option value="" disabled selected>Selecione uma categoria</option>
+            <option value="0">Compra</option>
+            <option value="1">Acesso</option>
+            <option value="2">Reembolso</option>
+            <option value="3">TI</option>
+            <option value="4">Outro</option>
+          </select>
+          @if (
+            form.get('category')?.invalid && form.get('category')?.touched
+          ) {
+            <span class="error">Categoria é obrigatória</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="priority">Prioridade</label>
+          <select id="priority" formControlName="priority" required>
+            <option value="" disabled selected>Selecione uma prioridade</option>
+            <option value="0">Baixa</option>
+            <option value="1">Média</option>
+            <option value="2">Alta</option>
+          </select>
+          @if (
+            form.get('priority')?.invalid && form.get('priority')?.touched
+          ) {
+            <span class="error">Prioridade é obrigatória</span>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn-cancel"
+          (click)="close.emit()"
+          [disabled]="isLoading()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="form.invalid || isLoading()"
+        >
+          @if (isLoading()) {
+            <span>Criando...</span>
+          } @else {
+            <span>Criar Solicitação</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

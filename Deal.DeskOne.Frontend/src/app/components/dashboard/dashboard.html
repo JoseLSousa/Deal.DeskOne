@@ -1,0 +1,208 @@
+<section class="dashboard">
+    <div class="dashboard__bg" aria-hidden="true"></div>
+    <div class="dashboard__content">
+        <header class="dashboard__header">
+            <div class="dashboard__title">
+                <p class="eyebrow">DeskOne</p>
+                <h1>Solicitacoes recentes</h1>
+                <p class="subtitle">Acompanhe as principais demandas com foco e clareza.</p>
+            </div>
+            <div class="dashboard__actions">
+                <div class="actions-row">
+                    <div class="search">
+                        <label class="form-label" for="request-search">Pesquisar solicitacoes</label>
+                        <div class="input-group">
+                            <input
+                                id="request-search"
+                                class="form-control"
+                                type="search"
+                                placeholder="Buscar solicitacao"
+                                autocomplete="off"
+                                [value]="searchTerm()"
+                                (input)="updateSearch($any($event.target).value)" />
+                        </div>
+                        <span class="search__hint">Ex: Novo contrato</span>
+                    </div>
+                    @if (isUser()) {
+                        <button mat-raised-button color="primary" class="btn" type="button" (click)="openCreateModal()">Nova solicitacao</button>
+                    }
+                </div>
+                <div class="filters" role="group" aria-label="Filtros">
+                    <div class="filter">
+                        <label class="form-label" for="filter-category">Categoria</label>
+                        <select
+                            id="filter-category"
+                            class="form-select"
+                            [value]="categoryFilter() ?? ''"
+                            (change)="updateCategory($any($event.target).value)">
+                            <option value="">Todas</option>
+                            <option value="0">Compra</option>
+                            <option value="1">Acesso</option>
+                            <option value="2">Reembolso</option>
+                            <option value="3">TI</option>
+                            <option value="4">Outro</option>
+                        </select>
+                    </div>
+                    <div class="filter">
+                        <label class="form-label" for="filter-priority">Prioridade</label>
+                        <select
+                            id="filter-priority"
+                            class="form-select"
+                            [value]="priorityFilter() ?? ''"
+                            (change)="updatePriority($any($event.target).value)">
+                            <option value="">Todas</option>
+                            <option value="0">Baixa</option>
+                            <option value="1">Média</option>
+                            <option value="2">Alta</option>
+                        </select>
+                    </div>
+                    <div class="filter">
+                        <label class="form-label" for="filter-status">Status</label>
+                        <select
+                            id="filter-status"
+                            class="form-select"
+                            [value]="statusFilter() ?? ''"
+                            (change)="updateStatusFilter($any($event.target).value)">
+                            <option value="">Todos</option>
+                            <option value="0">Pendente</option>
+                            <option value="1">Aprovado</option>
+                            <option value="2">Rejeitado</option>
+                        </select>
+                    </div>
+                    <button class="btn btn--ghost" type="button" (click)="clearFilters()">Limpar filtros</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="stats">
+            <mat-card class="stat-card" appearance="outlined">
+                <mat-card-content>
+                    <p class="stat-card__label">Total</p>
+                        <h2>{{totalCount()}}</h2>
+                </mat-card-content>
+            </mat-card>
+            <mat-card class="stat-card stat-card--accent" appearance="outlined">
+                <mat-card-content>
+                    <p class="stat-card__label">Prioridade alta</p>
+                        <h2>{{highPriorityCount()}}</h2>
+                </mat-card-content>
+            </mat-card>
+            <mat-card class="stat-card" appearance="outlined">
+                <mat-card-content>
+                    <p class="stat-card__label">Pendentes</p>
+                        <h2>{{pendingCount()}}</h2>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <mat-card class="table-card" appearance="outlined">
+            <div class="table-card__header">
+                <div>
+                    <h2>Visao geral</h2>
+                    <p>Dados organizados por titulo, categoria e status.</p>
+                </div>
+                <mat-chip-listbox class="pill-list" aria-label="Status de conexao">
+                    <mat-chip-option class="pill" [selected]="hasActiveFilters()">{{chipLabel()}}</mat-chip-option>
+                </mat-chip-listbox>
+            </div>
+            @if (loading()) {
+                <div class="table-loader" role="status" aria-live="polite">
+                    <div class="spinner-border text-success" aria-hidden="true"></div>
+                    <span class="sr-only">Carregando solicitacoes</span>
+                </div>
+            }
+            <div class="table-wrap" role="region" aria-label="Tabela de solicitacoes">
+                 <table mat-table [dataSource]="viewRows()" class="mat-elevation-z8 modern-table">
+                    <caption class="sr-only">Lista de solicitacoes com titulo, descricao, categoria, prioridade, status e data.</caption>
+
+                    <ng-container matColumnDef="title">
+                        <th mat-header-cell *matHeaderCellDef> Titulo</th>
+                        <td mat-cell *matCellDef="let element"> {{element.title}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="description">
+                        <th mat-header-cell *matHeaderCellDef> Descricao</th>
+                        <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="category">
+                        <th mat-header-cell *matHeaderCellDef> Categoria</th>
+                            <td mat-cell *matCellDef="let element"> {{element.categoryLabel}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="priority">
+                        <th mat-header-cell *matHeaderCellDef> Prioridade</th>
+                            <td mat-cell *matCellDef="let element"> {{element.priorityLabel}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef> Status</th>
+                            <td mat-cell *matCellDef="let element"> {{element.statusLabel}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="createdAt">
+                        <th mat-header-cell *matHeaderCellDef> Criado em</th>
+                        <td mat-cell *matCellDef="let element"> {{element.createdAt | date:'dd/MM/yyyy HH:mm'}} </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef> Acoes</th>
+                        <td mat-cell *matCellDef="let element">
+                            <button
+                                mat-icon-button
+                                class="actions-button"
+                                type="button"
+                                    [attr.aria-label]="'Acoes para ' + element.title"
+                                [matMenuTriggerFor]="actionsMenu">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #actionsMenu="matMenu">
+                                    @if (isManager() && element.status === 0) {
+                                        <button mat-menu-item type="button" (click)="approveRequest(element)">Aprovar</button>
+                                        <button mat-menu-item type="button" (click)="rejectRequest(element)">Reprovar</button>
+                                    }
+                                    @if (element.status === 0) {
+                                        <button mat-menu-item type="button" (click)="editRequest(element)">Editar</button>
+                                    }
+                                    <button mat-menu-item type="button" (click)="selectRequest(element)">Ver Histórico</button>
+                                    @if (isManager()) {
+                                        <button mat-menu-item type="button" (click)="deleteRequest(element)" class="delete-option">Deletar</button>
+                                    }
+                            </mat-menu>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+            </div>
+        </mat-card>
+    </div>
+
+    @if (showModal()) {
+        <app-request-modal
+            (close)="closeModal()"
+            (requestCreated)="onRequestCreated()"
+        ></app-request-modal>
+    }
+
+    @if (selectedRequestId(); as requestId) {
+        <div class="modal-overlay" (click)="closeRequestDetails()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Histórico da Solicitação</h2>
+                    <button 
+                        class="close-btn" 
+                        (click)="closeRequestDetails()"
+                        aria-label="Fechar histórico"
+                    >
+                        ×
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <app-request-history [requestId]="requestId"></app-request-history>
+                </div>
+            </div>
+        </div>
+    }
+</section>
