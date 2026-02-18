@@ -22,6 +22,11 @@ namespace Deal.DeskOne.Infrastructure.Persistence.Repositories
             return await context.Requests.ToListAsync(cancellationToken);
         }
 
+        public void AddHistory(RequestHistory history)
+        {
+            context.Entry(history).State = EntityState.Added;
+        }
+
         public void Update(RequestAggregate request)
         {
             context.Requests.Update(request);

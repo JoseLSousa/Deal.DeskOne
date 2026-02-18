@@ -3,37 +3,24 @@ using Deal.DeskOne.Application.Abstractions;
 using Deal.DeskOne.Application.Abstractions.Mediator;
 using Deal.DeskOne.Application.Queries.Request.GetRequestHistory;
 
-namespace Deal.DeskOne.Infrastructure.Queries
+namespace Deal.DeskOne.Infrastructure.Queries;
+
+public class GetRequestHistoryQueryHandler(IDbConnectionFactory connectionFactory)
+    : IQueryHandler<GetRequestHistoryQuery, IEnumerable<RequestHistoryDto>>
 {
-    public class GetRequestHistoryQueryHandler(IDbConnectionFactory dbConnectionFactory)
-        : IQueryHandler<GetRequestHistoryQuery, IEnumerable<RequestHistoryDto>>
+    public async Task<IEnumerable<RequestHistoryDto>> HandleAsync(GetRequestHistoryQuery query, CancellationToken cancellationToken = default)
     {
-        public async Task<IEnumerable<RequestHistoryDto>> HandleAsync(
-            GetRequestHistoryQuery query,
-            CancellationToken cancellationToken = default)
-        {
-            using var connection = dbConnectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
-            const string sql = """
+        const string sql = """
+                           SELECT "Id", "FieldName", "OldValue", "NewValue", "Comment", "ChangedAt", "ChangedBy"
+                           FROM "RequestHistories"
+                           WHERE "RequestId" = @RequestId
+                           ORDER BY "ChangedAt" DESC
+                           """;
 
-                                               SELECT 
-                                                   "Id",
-                                                   "RequestId",
-                                                   "FromStatus",
-                                                   "ToStatus",
-                                                   "ChangedBy",
-                                                   "ChangedAt",
-                                                   "Comment"
-                                               FROM "RequestStatusHistories"
-                                               WHERE "RequestId" = @RequestId
-                                               ORDER BY "ChangedAt" DESC
-                               """;
+        var parameters = new { query.RequestId };
 
-            var histories = await connection.QueryAsync<RequestHistoryDto>(
-                sql,
-                new { RequestId = query.RequestId });
-
-            return histories;
-        }
+        return await connection.QueryAsync<RequestHistoryDto>(sql, parameters);
     }
 }

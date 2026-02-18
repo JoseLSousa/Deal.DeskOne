@@ -7,6 +7,7 @@ namespace Deal.DeskOne.Domain.Abstractions.Repositories
         Task AddAsync(RequestAggregate request, CancellationToken cancellationToken);
         Task<RequestAggregate?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<IEnumerable<RequestAggregate>> GetAllAsync(CancellationToken cancellationToken);
+        void AddHistory(RequestHistory history);
         void Update(RequestAggregate request);
         void Delete(RequestAggregate request, Guid deletedBy);
     }

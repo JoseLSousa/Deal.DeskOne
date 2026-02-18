@@ -14,7 +14,7 @@ namespace Deal.DeskOne.Infrastructure.Queries
 
             const string sql = """
                                SELECT "Id", "Title","Description", "Category","Priority", "Status",
-                                      "CreatedAt", "CreatedBy", "ApprovedBy", "RejectedBy", "RejectionReason", "DeletedBy"
+                                      "CreatedAt", "CreatedBy", "ApprovedBy", "RejectedBy", "RejectionReason", "DeletedBy", xmin AS "Version"
                                FROM "Requests"
                                WHERE "Id" = @Id
                                  AND "IsDeleted" = false

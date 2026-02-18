@@ -5,8 +5,10 @@ namespace Deal.DeskOne.Application.Commands.Request.UpdateRequest
 {
     public record UpdateRequestCommand(
         Guid Id,
-        string? Title = null,
-        string? Description = null,
-        RequestCategory? Category = null,
-        RequestPriority? Priority = null) : ICommand;
+        string? Title,
+        string? Description,
+        RequestCategory? Category,
+        RequestPriority? Priority,
+        Guid ChangedBy,
+        uint Version) : ICommand;
 }

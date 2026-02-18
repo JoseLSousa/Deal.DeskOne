@@ -12,6 +12,7 @@
         Guid? ApprovedBy,
         Guid? RejectedBy,
         string? RejectionReason,
-        Guid? DeletedBy
+        Guid? DeletedBy,
+        uint Version
     );
 }

@@ -7,10 +7,11 @@
         public Guid Id { get; private set; } = Guid.NewGuid();
         public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; private set; }
+        public uint Version { get; private set; }
 
         public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-        public void AddDomainEvent(IDomainEvent domainEvent)
+        protected void AddDomainEvent(IDomainEvent domainEvent)
             => _domainEvents.Add(domainEvent);
 
         public void ClearDomainEvents()

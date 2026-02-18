@@ -250,24 +250,41 @@ export class Dashboard implements OnInit {
     const modalComponent = dialogRef.componentInstance;
     modalComponent.setRequest(request);
 
-    dialogRef.afterClosed().subscribe((updatedData) => {
-      if (!updatedData) {
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) {
         return;
       }
 
-      this.requests.update((items) =>
-        items.map((item) =>
-          item.id === request.id
-            ? {
-                ...item,
-                title: updatedData.title ?? item.title,
-                description: updatedData.description ?? item.description,
-                category: updatedData.category ?? item.category,
-                priority: updatedData.priority ?? item.priority,
-              }
-            : item,
-        ),
-      );
+      // Se houver um erro na atualização
+      if (result.error) {
+        const errorMessage = result.error?.error?.message || 'Erro ao atualizar solicitação';
+        this.errorMessage.set(errorMessage);
+        return;
+      }
+
+      // Se a atualização foi bem-sucedida
+      if (result.updatedRequest) {
+        this.requests.update((items) =>
+          items.map((item) =>
+            item.id === request.id ? result.updatedRequest : item,
+          ),
+        );
+      } else {
+        // Fallback: atualização local se não temos os dados do servidor
+        this.requests.update((items) =>
+          items.map((item) =>
+            item.id === request.id
+              ? {
+                  ...item,
+                  title: result.title ?? item.title,
+                  description: result.description ?? item.description,
+                  category: result.category ?? item.category,
+                  priority: result.priority ?? item.priority,
+                }
+              : item,
+          ),
+        );
+      }
     });
   }
 

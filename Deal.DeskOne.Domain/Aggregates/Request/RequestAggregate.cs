@@ -17,7 +17,8 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
         public bool IsDeleted { get; private set; }
         public DateTime? DeletedAt { get; private set; }
         public Guid? DeletedBy { get; private set; }
-        public ICollection<RequestStatusHistory> StatusHistory { get; private set; } = new List<RequestStatusHistory>();
+        private readonly List<RequestHistory> _history = [];
+        public IReadOnlyCollection<RequestHistory> History => _history.AsReadOnly();
 
         private RequestAggregate() { }
 
@@ -38,41 +39,54 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
                 CreatedBy = createdBy
             };
 
+            request._history.Add(RequestHistory.Create(request.Id, "Request", string.Empty, "Created", "Request created successfully.", createdBy));
             request.AddDomainEvent(new RequestCreatedEvent(request.Id, title, category, createdBy));
 
             return request;
         }
 
-        public void UpdateTitle(string newTitle)
+        public void UpdateTitle(string newTitle, Guid changedBy)
         {
             if (Status != RequestStatus.Pending)
                 throw new InvalidOperationException("Cannot update title of approved or rejected requests.");
 
-            if (string.IsNullOrWhiteSpace(newTitle))
-                throw new ArgumentException("Title cannot be empty.", nameof(newTitle));
+            if (string.IsNullOrWhiteSpace(newTitle) || Title == newTitle)
+                return;
 
+            var oldValue = Title;
             Title = newTitle;
+
+            _history.Add(RequestHistory.Create(Id, nameof(Title), oldValue, newTitle, string.Empty, changedBy));
             MarkAsUpdated();
         }
 
-        public void UpdateDescription(string newDescription)
+        public void UpdateDescription(string newDescription, Guid changedBy)
         {
             if (Status != RequestStatus.Pending)
                 throw new InvalidOperationException("Cannot update description of approved or rejected requests.");
 
-            if (string.IsNullOrWhiteSpace(newDescription))
-                throw new ArgumentException("Description cannot be empty.", nameof(newDescription));
+            if (string.IsNullOrWhiteSpace(newDescription) || Description == newDescription)
+                return;
 
+            var oldValue = Description;
             Description = newDescription;
+
+            _history.Add(RequestHistory.Create(Id, nameof(Description), oldValue, newDescription, string.Empty, changedBy));
             MarkAsUpdated();
         }
 
-        public void UpdateCategory(RequestCategory newCategory)
+        public void UpdateCategory(RequestCategory newCategory, Guid changedBy)
         {
             if (Status != RequestStatus.Pending)
                 throw new InvalidOperationException("Cannot update category of approved or rejected requests.");
 
+            if (Category == newCategory)
+                return;
+
+            var oldValue = Category.ToString();
             Category = newCategory;
+
+            _history.Add(RequestHistory.Create(Id, nameof(Category), oldValue, newCategory.ToString(), string.Empty, changedBy));
             MarkAsUpdated();
         }
 
@@ -85,8 +99,7 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
             Status = RequestStatus.Approved;
             ApprovedBy = approvedBy;
 
-            RecordStatusHistory(previousStatus, Status, approvedBy, comment);
-
+            _history.Add(RequestHistory.Create(Id, nameof(Status), previousStatus.ToString(), Status.ToString(), comment ?? "Request approved.", approvedBy));
             MarkAsUpdated();
             AddDomainEvent(new RequestApprovedEvent(Id, approvedBy));
         }
@@ -104,18 +117,23 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
             RejectedBy = rejectedBy;
             RejectionReason = reason;
 
-            RecordStatusHistory(previousStatus, Status, rejectedBy, reason);
-
+            _history.Add(RequestHistory.Create(Id, nameof(Status), previousStatus.ToString(), Status.ToString(), reason, rejectedBy));
             MarkAsUpdated();
             AddDomainEvent(new RequestRejectedEvent(Id, rejectedBy, reason));
         }
 
-        public void UpdatePriority(RequestPriority newPriority)
+        public void UpdatePriority(RequestPriority newPriority, Guid changedBy)
         {
             if (Status != RequestStatus.Pending)
                 throw new InvalidOperationException("Cannot update priority of approved or rejected requests.");
 
+            if (Priority == newPriority)
+                return;
+
+            var oldValue = Priority.ToString();
             Priority = newPriority;
+
+            _history.Add(RequestHistory.Create(Id, nameof(Priority), oldValue, newPriority.ToString(), string.Empty, changedBy));
             MarkAsUpdated();
         }
 
@@ -124,16 +142,13 @@ namespace Deal.DeskOne.Domain.Aggregates.Request
             if (IsDeleted)
                 return;
 
+            var oldValue = IsDeleted;
             IsDeleted = true;
             DeletedAt = DateTime.UtcNow;
             DeletedBy = deletedBy;
-            MarkAsUpdated();
-        }
 
-        private void RecordStatusHistory(RequestStatus fromStatus, RequestStatus toStatus, Guid changedBy, string? comment)
-        {
-            var history = RequestStatusHistory.Create(Id, fromStatus, toStatus, changedBy, comment);
-            StatusHistory.Add(history);
+            _history.Add(RequestHistory.Create(Id, nameof(IsDeleted), oldValue.ToString(), IsDeleted.ToString(), "Request deleted.", deletedBy));
+            MarkAsUpdated();
         }
     }
 }

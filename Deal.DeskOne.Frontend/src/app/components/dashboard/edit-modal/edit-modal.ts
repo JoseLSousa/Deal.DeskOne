@@ -105,15 +105,29 @@ export class EditModal {
       description: this.form.get('description')?.value || undefined,
       category: categoryValue ? parseInt(categoryValue as string, 10) : undefined,
       priority: priorityValue ? parseInt(priorityValue as string, 10) : undefined,
+      version: req.version,
     };
 
     this.requestsService.updateRequest(req.id, command).subscribe({
       next: () => {
-        this.isLoading.set(false);
-        this.dialogRef.close(command);
+        // Buscar dados atualizados para sincronizar a versão
+        this.requestsService.getRequestById(req.id).subscribe({
+          next: (updatedRequest) => {
+            this.isLoading.set(false);
+            // Retornar a solicitação atualizada com os novos dados
+            this.dialogRef.close({ ...command, updatedRequest });
+          },
+          error: () => {
+            this.isLoading.set(false);
+            // Se não conseguir buscar, retorna apenas o comando
+            this.dialogRef.close(command);
+          },
+        });
       },
-      error: () => {
+      error: (error) => {
         this.isLoading.set(false);
+        // Fechar modal mesmo em caso de erro para o dashboard tratar
+        this.dialogRef.close({ error });
       },
     });
   }

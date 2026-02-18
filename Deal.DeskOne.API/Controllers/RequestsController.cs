@@ -7,11 +7,12 @@ using Deal.DeskOne.Application.Commands.Request.DeleteRequest;
 using Deal.DeskOne.Application.Commands.Request.RejectRequest;
 using Deal.DeskOne.Application.Commands.Request.UpdateRequest;
 using Deal.DeskOne.Application.Queries.Request.GetRequestById;
-using Deal.DeskOne.Application.Queries.Request.GetRequests;
 using Deal.DeskOne.Application.Queries.Request.GetRequestHistory;
+using Deal.DeskOne.Application.Queries.Request.GetRequests;
 using Deal.DeskOne.Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Deal.DeskOne.API.Controllers
 {
@@ -82,14 +83,25 @@ namespace Deal.DeskOne.API.Controllers
         public async Task<IActionResult> UpdateRequest(Guid id, [FromBody] UpdateRequestBody body,
             CancellationToken cancellationToken)
         {
+            var userId = User.GetUserId();
             var command = new UpdateRequestCommand(
                 id,
                 body.Title,
                 body.Description,
                 body.Category,
-                body.Priority);
+                body.Priority,
+                userId,
+                body.Version);
 
-            await commandDispatcher.DispatchAsync(command, cancellationToken);
+            try
+            {
+                await commandDispatcher.DispatchAsync(command, cancellationToken);
+
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Conflict("The request was modified by another user. Please refresh and try again.");
+            }
 
             return NoContent();
         }

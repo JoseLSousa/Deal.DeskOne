@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Deal.DeskOne.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260217190800_AddRequestStatusHistory")]
-    partial class AddRequestStatusHistory
+    [Migration("20260218024715_UseXminAsConcurrencyTokenForRequests")]
+    partial class UseXminAsConcurrencyTokenForRequests
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,12 +51,11 @@ namespace Deal.DeskOne.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasColumnType("boolean");
 
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
@@ -72,17 +71,24 @@ namespace Deal.DeskOne.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Requests");
+                    b.ToTable("Requests", (string)null);
                 });
 
-            modelBuilder.Entity("Deal.DeskOne.Domain.Aggregates.Request.RequestStatusHistory", b =>
+            modelBuilder.Entity("Deal.DeskOne.Domain.Aggregates.Request.RequestHistory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -95,28 +101,39 @@ namespace Deal.DeskOne.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Comment")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
-                    b.Property<int>("FromStatus")
-                        .HasColumnType("integer");
+                    b.Property<string>("FieldName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NewValue")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("OldValue")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<Guid>("RequestId")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("ToStatus")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RequestId");
 
-                    b.ToTable("RequestStatusHistories");
+                    b.ToTable("RequestHistories", (string)null);
                 });
 
-            modelBuilder.Entity("Deal.DeskOne.Domain.Aggregates.Request.RequestStatusHistory", b =>
+            modelBuilder.Entity("Deal.DeskOne.Domain.Aggregates.Request.RequestHistory", b =>
                 {
                     b.HasOne("Deal.DeskOne.Domain.Aggregates.Request.RequestAggregate", null)
-                        .WithMany("StatusHistory")
+                        .WithMany("History")
                         .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -124,7 +141,7 @@ namespace Deal.DeskOne.Infrastructure.Migrations
 
             modelBuilder.Entity("Deal.DeskOne.Domain.Aggregates.Request.RequestAggregate", b =>
                 {
-                    b.Navigation("StatusHistory");
+                    b.Navigation("History");
                 });
 #pragma warning restore 612, 618
         }

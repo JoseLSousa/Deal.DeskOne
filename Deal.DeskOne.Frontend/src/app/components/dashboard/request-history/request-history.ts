@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { RequestHistory, StatusLabels, StatusIcons, StatusColors } from '../request-history.model';
+import { RequestHistory } from '../request-history.model';
 import { RequestsService } from '../requests.service';
 
 @Component({
@@ -54,16 +54,33 @@ export class RequestHistoryComponent implements OnInit {
       });
   }
 
-  getStatusLabel(status: number): string {
-    return StatusLabels[status] || 'Desconhecido';
+  getEventIcon(event: RequestHistory): string {
+    // Map icons based on field name and new value
+    const iconMap: Record<string, string> = {
+      'Created': 'add_circle',
+      'Approved': 'check_circle',
+      'Rejected': 'cancel',
+      'Updated': 'edit',
+    };
+    return iconMap[event.newValue] || 'info';
   }
 
-  getStatusIcon(status: number): string {
-    return StatusIcons[status] || 'info';
+  getEventColor(event: RequestHistory): string {
+    // Map colors based on field name and new value
+    const colorMap: Record<string, string> = {
+      'Created': '#2196F3',
+      'Approved': '#4CAF50',
+      'Rejected': '#F44336',
+      'Updated': '#FF9800',
+    };
+    return colorMap[event.newValue] || '#6b7280';
   }
 
-  getStatusColor(status: number): string {
-    return StatusColors[status] || '#6b7280';
+  getEventDescription(event: RequestHistory): string {
+    if (event.oldValue && event.newValue) {
+      return `${event.fieldName}: "${event.oldValue}" → "${event.newValue}"`;
+    }
+    return `${event.fieldName}: ${event.newValue}`;
   }
 
   formatDate(dateString: string): string {
@@ -81,3 +98,4 @@ export class RequestHistoryComponent implements OnInit {
     }
   }
 }
+

@@ -3,7 +3,7 @@
 namespace Deal.DeskOne.Application.Queries.Request.GetRequests
 {
     public record GetRequestsQuery(
-        string? Status = null,
+        int? Status = null,
         string? Search = null)
         : IQuery<IEnumerable<RequestResponseDto>>;
 }

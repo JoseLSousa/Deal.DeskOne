@@ -6,6 +6,7 @@ export interface Request {
   priority: number;
   status: number;
   createdAt: string;
+  version: number;
 }
 
 export interface CreateRequestCommand {
@@ -20,6 +21,7 @@ export interface UpdateRequestCommand {
   description?: string;
   category?: number;
   priority?: number;
+  version: number;
 }
 
 export interface ApproveRequestCommand {
