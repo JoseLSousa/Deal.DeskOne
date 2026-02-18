@@ -1,20 +1,29 @@
 services:
   postgres:
     image: postgres:15
+    container_name: postgres
     environment:
+      POSTGRES_DB: keycloak
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+
   keycloak:
     image: quay.io/keycloak/keycloak:latest
-    command: start-dev
+    container_name: keycloak
+    command: start-dev --import-realm
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: DeskOne
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
       KC_HEALTH_ENABLED: true
     ports:
-         - "8080:8080"
+      - "8080:8080"
     volumes:
       - ./containers/identity:/opt/keycloak/data
-      
